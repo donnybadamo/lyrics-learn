@@ -95,9 +95,16 @@ function setupEnableToggle() {
   });
 }
 
+function normalizeVocab(v) {
+  if (!Array.isArray(v)) return [];
+  return v.map((item) =>
+    typeof item === 'string' ? { word: item, translation: null } : { word: item.word || '', translation: item.translation ?? null }
+  ).filter((item) => item.word);
+}
+
 function loadVocab() {
   chrome.storage.local.get([VOCAB_KEY], (result) => {
-    const vocab = result[VOCAB_KEY] || [];
+    const vocab = normalizeVocab(result[VOCAB_KEY] || []);
     const list = document.getElementById('vocab-list');
 
     if (vocab.length === 0) {
@@ -106,11 +113,14 @@ function loadVocab() {
     }
 
     list.innerHTML = vocab
-      .sort((a, b) => a.localeCompare(b))
+      .sort((a, b) => a.word.localeCompare(b.word))
       .map(
-        (word) => `
-        <div class="vocab-item" data-word="${escapeHtml(word)}">
-          <span>${escapeHtml(word)}</span>
+        (item) => `
+        <div class="vocab-item" data-word="${escapeHtml(item.word)}">
+          <div class="vocab-item-text">
+            <span class="vocab-word">${escapeHtml(item.word)}</span>
+            ${item.translation ? `<span class="vocab-translation">→ ${escapeHtml(item.translation)}</span>` : ''}
+          </div>
           <button class="vocab-remove" type="button" title="Remove">×</button>
         </div>
       `
@@ -121,7 +131,7 @@ function loadVocab() {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const word = btn.closest('.vocab-item').dataset.word;
-        const updated = vocab.filter((w) => w !== word);
+        const updated = vocab.filter((item) => item.word !== word);
         chrome.storage.local.set({ [VOCAB_KEY]: updated });
         loadVocab();
       });
@@ -146,9 +156,10 @@ function escapeCsvField(s) {
 function exportVocabQuizletCsv(vocab) {
   const header = 'term,definition\n';
   if (vocab.length === 0) return header;
-  const rows = vocab
-    .sort((a, b) => a.localeCompare(b))
-    .map((word) => `${escapeCsvField(word)},`)
+  const normalized = normalizeVocab(vocab);
+  const rows = normalized
+    .sort((a, b) => a.word.localeCompare(b.word))
+    .map((item) => `${escapeCsvField(item.word)},${escapeCsvField(item.translation || '')}`)
     .join('\n');
   return header + rows;
 }
@@ -156,7 +167,7 @@ function exportVocabQuizletCsv(vocab) {
 document.getElementById('export-vocab').addEventListener('click', async (e) => {
   e.stopPropagation();
   const result = await chrome.storage.local.get([VOCAB_KEY]);
-  const vocab = result[VOCAB_KEY] || [];
+  const vocab = normalizeVocab(result[VOCAB_KEY] || []);
   if (vocab.length === 0) {
     alert('No vocabulary to export. Save words from Spotify lyrics first.');
     return;

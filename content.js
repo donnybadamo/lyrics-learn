@@ -54,10 +54,17 @@
   ];
 
   let translationCache = {};
-  let savedVocab = new Set();
+  let savedVocab = [];
+
+  function normalizeVocab(v) {
+    if (!Array.isArray(v)) return [];
+    return v.map((item) =>
+      typeof item === 'string' ? { word: item, translation: null } : { word: item.word || '', translation: item.translation ?? null }
+    ).filter((item) => item.word);
+  }
 
   chrome.storage.local.get([VOCAB_KEY, TRANSLATION_CACHE_KEY, FROM_LANG_KEY, TO_LANG_KEY, ENABLED_KEY], (result) => {
-    if (result[VOCAB_KEY]) savedVocab = new Set(result[VOCAB_KEY]);
+    if (result[VOCAB_KEY]) savedVocab = normalizeVocab(result[VOCAB_KEY]);
     if (result[TRANSLATION_CACHE_KEY]) translationCache = result[TRANSLATION_CACHE_KEY];
     if (result[FROM_LANG_KEY]) fromLang = result[FROM_LANG_KEY];
     if (result[TO_LANG_KEY]) toLang = result[TO_LANG_KEY];
@@ -66,22 +73,24 @@
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local') {
-      if (changes[VOCAB_KEY]) savedVocab = new Set(changes[VOCAB_KEY].newValue || []);
+      if (changes[VOCAB_KEY]) savedVocab = normalizeVocab(changes[VOCAB_KEY].newValue || []);
       if (changes[FROM_LANG_KEY]) fromLang = changes[FROM_LANG_KEY].newValue || 'es';
       if (changes[TO_LANG_KEY]) toLang = changes[TO_LANG_KEY].newValue || 'en';
       if (changes[ENABLED_KEY] !== undefined) enabled = changes[ENABLED_KEY].newValue;
     }
   });
 
-  function saveVocab(word) {
-    const w = word.toLowerCase().trim();
+  function saveVocab(word, translation) {
+    const w = word.trim();
     if (!w) return;
-    savedVocab.add(w);
-    chrome.storage.local.set({ [VOCAB_KEY]: [...savedVocab] });
+    const key = w.toLowerCase();
+    savedVocab = savedVocab.filter((v) => v.word.toLowerCase() !== key);
+    savedVocab.push({ word: w, translation: translation || null });
+    chrome.storage.local.set({ [VOCAB_KEY]: savedVocab });
   }
 
   function isSaved(word) {
-    return savedVocab.has(word.toLowerCase());
+    return savedVocab.some((v) => v.word.toLowerCase() === (word || '').toLowerCase());
   }
 
   function getCachedTranslation(text, from, to) {
@@ -193,7 +202,7 @@
     saveBtn.textContent = isSaved(word) ? '✓ Saved to vocab' : '+ Save to vocab';
     saveBtn.onclick = () => {
       if (!isSaved(word)) {
-        saveVocab(word);
+        saveVocab(word, translation);
         saveBtn.textContent = '✓ Saved to vocab';
         saveBtn.classList.add('lls-saved');
       }
