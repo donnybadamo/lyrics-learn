@@ -1,0 +1,15 @@
+{
+  "name": "lyrics-learn",
+  "version": "1.0.0",
+  "description": "Chrome extension: Learn languages through Spotify lyrics",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testMatch": ["**/tests/**/*.test.js"]
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

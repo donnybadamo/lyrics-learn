@@ -1,93 +1,124 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      width: 320px;
-      min-height: 200px;
-      margin: 0;
-      padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #121212;
-      color: #fff;
-    }
-    h1 {
-      font-size: 16px;
-      margin: 0 0 16px;
-      color: #1db954;
-    }
-    .section {
-      margin-bottom: 16px;
-    }
-    .section-title {
-      font-size: 12px;
-      color: #b3b3b3;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-    #vocab-list {
-      max-height: 200px;
-      overflow-y: auto;
-      font-size: 13px;
-    }
-    .vocab-item {
-      padding: 6px 0;
-      border-bottom: 1px solid #282828;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .vocab-item:last-child { border-bottom: none; }
-    .vocab-remove {
-      background: none;
-      border: none;
-      color: #b3b3b3;
-      cursor: pointer;
-      font-size: 18px;
-      padding: 0 4px;
-      line-height: 1;
-    }
-    .vocab-remove:hover { color: #e91429; }
-    .empty-state {
-      color: #b3b3b3;
-      font-size: 13px;
-      padding: 12px 0;
-    }
-    #clear-vocab {
-      margin-top: 8px;
-      padding: 8px 12px;
-      background: #282828;
-      border: none;
-      border-radius: 4px;
-      color: #b3b3b3;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    #clear-vocab:hover {
-      background: #333;
-      color: #fff;
-    }
-    .tip {
-      font-size: 11px;
-      color: #535353;
-      margin-top: 16px;
-      padding-top: 12px;
-      border-top: 1px solid #282828;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lyrics Learn</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>Lyrics Learn Spanish</h1>
-  <div class="section">
-    <div class="section-title">Saved vocabulary</div>
-    <div id="vocab-list"></div>
-    <button id="clear-vocab">Clear all</button>
-  </div>
-  <div class="tip">
-    Play Spanish songs on Spotify, open lyrics (mic icon), and click any word for definition + save.
+  <div class="container-fluid px-3 py-3">
+    <header class="d-flex align-items-center justify-content-between mb-3">
+      <h1 class="mb-0">Lyrics Learn</h1>
+      <span class="badge">Spotify</span>
+    </header>
+
+    <section class="card card-toggle mb-3">
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="toggle-title">Enable translations</span>
+          <span class="toggle-desc">Show inline translations on Spotify lyrics</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="enable-toggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card mb-3">
+      <h2 class="card-title">Translate</h2>
+      <div class="row g-2">
+        <div class="col-6">
+          <label class="form-label">Lyrics in</label>
+          <div id="from-lang-dropdown" class="custom-select">
+            <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="custom-select-value">Spanish</span>
+              <span class="custom-select-arrow">▼</span>
+            </button>
+            <div class="custom-select-menu" role="listbox" hidden>
+              <div class="custom-select-group"><button type="button" data-value="auto">Auto-detect</button></div>
+              <div class="custom-select-group">
+                <div class="custom-select-group-label">European</div>
+                <button type="button" data-value="es">Spanish</button>
+                <button type="button" data-value="fr">French</button>
+                <button type="button" data-value="pt">Portuguese</button>
+                <button type="button" data-value="it">Italian</button>
+                <button type="button" data-value="de">German</button>
+                <button type="button" data-value="ru">Russian</button>
+              </div>
+              <div class="custom-select-group">
+                <div class="custom-select-group-label">Indian</div>
+                <button type="button" data-value="hi">Hindi</button>
+                <button type="button" data-value="ta">Tamil</button>
+                <button type="button" data-value="te">Telugu</button>
+                <button type="button" data-value="bn">Bengali</button>
+                <button type="button" data-value="mr">Marathi</button>
+                <button type="button" data-value="ur">Urdu</button>
+                <button type="button" data-value="gu">Gujarati</button>
+                <button type="button" data-value="kn">Kannada</button>
+                <button type="button" data-value="ml">Malayalam</button>
+                <button type="button" data-value="pa">Punjabi</button>
+              </div>
+              <div class="custom-select-group">
+                <div class="custom-select-group-label">East Asian</div>
+                <button type="button" data-value="ja">Japanese</button>
+                <button type="button" data-value="ko">Korean</button>
+                <button type="button" data-value="zh">Chinese</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <label class="form-label">Translate to</label>
+          <div id="to-lang-dropdown" class="custom-select">
+            <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="custom-select-value">English</span>
+              <span class="custom-select-arrow">▼</span>
+            </button>
+            <div class="custom-select-menu" role="listbox" hidden>
+              <button type="button" data-value="en">English</button>
+              <div class="custom-select-group">
+                <div class="custom-select-group-label">European</div>
+                <button type="button" data-value="es">Spanish</button>
+                <button type="button" data-value="fr">French</button>
+                <button type="button" data-value="pt">Portuguese</button>
+                <button type="button" data-value="de">German</button>
+              </div>
+              <div class="custom-select-group">
+                <div class="custom-select-group-label">Indian</div>
+                <button type="button" data-value="hi">Hindi</button>
+                <button type="button" data-value="ta">Tamil</button>
+                <button type="button" data-value="te">Telugu</button>
+                <button type="button" data-value="bn">Bengali</button>
+                <button type="button" data-value="mr">Marathi</button>
+                <button type="button" data-value="ur">Urdu</button>
+                <button type="button" data-value="gu">Gujarati</button>
+                <button type="button" data-value="kn">Kannada</button>
+                <button type="button" data-value="ml">Malayalam</button>
+                <button type="button" data-value="pa">Punjabi</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="form-hint">Reload Spotify after changing languages</p>
+    </section>
+
+    <section class="card mb-3">
+      <div class="card-header">
+        <h2 class="card-title">Saved vocabulary</h2>
+        <div class="card-actions">
+          <button id="export-vocab" class="btn-text btn-export" type="button" title="Export as Quizlet CSV">Export CSV</button>
+          <button id="clear-vocab" class="btn-text" type="button">Clear all</button>
+        </div>
+      </div>
+      <div id="vocab-list" class="vocab-list"></div>
+    </section>
+
+    <footer class="footer">
+      Play songs on Spotify → open lyrics (mic icon) → click words for definitions
+    </footer>
   </div>
   <script src="popup.js"></script>
 </body>

@@ -1,23 +1,38 @@
 {
   "manifest_version": 3,
-  "name": "Lyrics Learn Spanish",
+  "name": "Lyrics Learn",
   "version": "1.0.0",
-  "description": "Learn Spanish through music - inline English translations, word definitions, and vocabulary saving. Works with Spotify.",
-  "permissions": ["storage"],
+  "description": "Learn languages through music - inline translations, word definitions, and vocabulary saving. Works with Spotify.",
+  "permissions": ["storage", "tabs"],
   "host_permissions": [
     "https://open.spotify.com/*",
     "https://api.mymemory.translated.net/*",
-    "https://api.dictionaryapi.dev/*"
+    "https://translate.googleapis.com/*",
+    "https://api.dictionaryapi.dev/*",
+    "https://api.urbandictionary.com/*"
   ],
   "content_scripts": [
     {
       "matches": ["https://open.spotify.com/*"],
-      "js": ["content.js"],
+      "js": ["lib.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon-16.png",
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "images/icon-16.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "options_ui": {
+    "page": "options.html"
   }
 }
